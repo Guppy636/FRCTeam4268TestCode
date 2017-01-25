@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.Joystick;
 import org.usfirst.frc.team4268.robot.commands.ExampleCommand;
 import org.usfirst.frc.team4268.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -21,6 +22,9 @@ public class Robot {
 
 	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
+	Joystick stick = new Joystick();
+        private boolean ballRaised;
+	privale boolean hookExtended;
 
     Command autonomousCommand;
     SendableChooser chooser;
@@ -29,7 +33,10 @@ public class Robot {
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
-    public void robotInit() {
+    public void robotInit()
+    {
+	    ballRaised = false;
+	    hookExtended = false;
 		oi = new OI();
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", new ExampleCommand());
@@ -42,11 +49,13 @@ public class Robot {
      * You can use it to reset any subsystem information you want to clear when
 	 * the robot is disabled.
      */
-    public void disabledInit(){
+    public void disabledInit()
+    {
 
     }
 	
-	public void disabledPeriodic() {
+	public void disabledPeriodic()
+	{
 		Scheduler.getInstance().run();
 	}
 
@@ -59,7 +68,8 @@ public class Robot {
 	 * You can add additional auto modes by adding additional commands to the chooser code above (like the commented example)
 	 * or additional comparisons to the switch structure below with additional strings & commands.
 	 */
-    public void autonomousInit() {
+    public void autonomousInit()
+    {
         autonomousCommand = (Command) chooser.getSelected();
         
 		/* String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
@@ -80,11 +90,13 @@ public class Robot {
     /**
      * This function is called periodically during autonomous
      */
-    public void autonomousPeriodic() {
+    public void autonomousPeriodic()
+    {
         Scheduler.getInstance().run();
     }
 
-    public void teleopInit() {
+    public void teleopInit()
+    {
 		// This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to 
         // continue until interrupted by another command, remove
@@ -95,14 +107,33 @@ public class Robot {
     /**
      * This function is called periodically during operator control
      */
-    public void teleopPeriodic() {
-        Scheduler.getInstance().run();
+    public void teleopPeriodic()
+    {
+	    Scheduler.getInstance().run();
+	    while (isOperatorControl() && isEnabled())
+	    {
+	            //Toggle extension of gear hook
+		    if (stick.getRawButton(1))
+		    {
+		         hookExtended = !hookExtended;
+			    //TODO: add solenoid programming
+		    }
+		    
+		    //toggle UP/DOWN for ball platform
+		    //maybe make this two different buttons, one for up and one for down
+		    if (stick.geRawButton(3))
+		    {
+		         ballRaised = !ballRaised;
+			    //TODO: add solenoid programming
+		    }
+	    }
     }
     
     /**
      * This function is called periodically during test mode
      */
-    public void testPeriodic() {
+    public void testPeriodic()
+    {
         LiveWindow.run();
     }
 }
